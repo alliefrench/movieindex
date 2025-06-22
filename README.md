@@ -1,10 +1,6 @@
 # movieindex
 App for friend-sourcing movie reviews
 
-# movidex
-
-Movie reviews database and index.
-
 ## Project Structure
 
 - `api/` — FastAPI Python server
