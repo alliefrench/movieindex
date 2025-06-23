@@ -9,9 +9,13 @@
   "devDependencies": {
     "typescript": "^5.0.0",
     "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0"
+    "@types/react-dom": "^18.0.0",
+    "vite": "^5.3.5",
+    "@vitejs/plugin-react": "^4.3.1"
   },
   "scripts": {
-    "start": "echo \"Add a React+TypeScript build setup (e.g. Vite, CRA)\" && exit 1"
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   }
 }

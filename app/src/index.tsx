@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 
 function App(): JSX.Element {
-  return <h1>Welcome to movidex app</h1>;
+  return <h1>Welcome to movieindex</h1>;
 }
 
 const container = document.getElementById("root");
