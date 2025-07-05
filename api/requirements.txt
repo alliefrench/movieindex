@@ -1,5 +1,8 @@
 fastapi
 uvicorn
+<<<<<<< Updated upstream
+=======
 sqlalchemy
-psycopg2-binary
+asyncpg
 python-jose[cryptography]
+>>>>>>> Stashed changes
