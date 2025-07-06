@@ -1,28 +1,61 @@
 import os
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from dotenv import load_dotenv
+import ssl
 
+# Load environment variables from root level .env file
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+
+# Database configuration
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-if DATABASE_URL is None:
-    raise ValueError("DATABASE_URL environment variable not set")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is not set")
 
-if not DATABASE_URL.startswith("postgresql+asyncpg://"):
-    # Convert postgresql:// to postgresql+asyncpg://
-    if DATABASE_URL.startswith("postgresql://"):
-        DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
-    else:
-        raise ValueError("DATABASE_URL must be a PostgreSQL URL for asyncpg")
+# Parse and clean the DATABASE_URL for asyncpg
+# Remove sslmode and channel_binding parameters as they're not supported by asyncpg
+if "sslmode=" in DATABASE_URL:
+    # Split the URL to remove unsupported parameters
+    base_url = DATABASE_URL.split('?')[0]
+    # For Neon, we need SSL but asyncpg handles it differently
+    cleaned_url = base_url
+else:
+    cleaned_url = DATABASE_URL
 
-engine = create_async_engine(DATABASE_URL)
-AsyncSessionLocal = sessionmaker(
-    engine, class_=AsyncSession, expire_on_commit=False
+# Create SSL context for asyncpg
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
+
+# Create async engine with SSL context
+engine = create_async_engine(
+    cleaned_url,
+    echo=True,
+    connect_args={
+        "ssl": ssl_context,
+        "server_settings": {
+            "application_name": "movieindex_app",
+        }
+    }
 )
 
+# Create async session maker
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+# Create base class for models
 Base = declarative_base()
 
-# Dependency to get an async DB session for each request
+# Dependency to get database session
 async def get_db():
     async with AsyncSessionLocal() as session:
-        yield session 
+        try:
+            yield session
+        finally:
+            await session.close() 
