@@ -1,8 +1,7 @@
 fastapi
 uvicorn
-<<<<<<< Updated upstream
-=======
 sqlalchemy
 asyncpg
 python-jose[cryptography]
->>>>>>> Stashed changes
+python-dotenv
+greenlet

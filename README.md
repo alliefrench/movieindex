@@ -1,4 +1,5 @@
 # movieindex
+
 App for friend-sourcing movie reviews
 
 ## Project Structure
@@ -15,7 +16,8 @@ App for friend-sourcing movie reviews
 ```bash
 cd api
 python -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activate
+source .env
+source venv/bin/activate
 pip install -r requirements.txt
 uvicorn main:app --reload
 ```
