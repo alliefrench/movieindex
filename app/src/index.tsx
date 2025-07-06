@@ -15,6 +15,9 @@ function App(): JSX.Element {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
+  // Get API URL from environment variables
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
   // Check for token in URL and load user
   useEffect(() => {
     // Check if there's a token in the URL (from Google OAuth callback)
@@ -45,7 +48,7 @@ function App(): JSX.Element {
 
   const fetchScaryData = async () => {
     try {
-      const response = await fetch("http://localhost:8000/scary");
+      const response = await fetch(`${API_URL}/scary`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -60,9 +63,7 @@ function App(): JSX.Element {
 
   const fetchUserInfo = async (userToken: string) => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/auth/me?token=${userToken}`
-      );
+      const response = await fetch(`${API_URL}/auth/me?token=${userToken}`);
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
@@ -73,7 +74,7 @@ function App(): JSX.Element {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8000/auth/google";
+    window.location.href = `${API_URL}/auth/google`;
   };
 
   const handleLogout = () => {
