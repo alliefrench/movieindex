@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Integer, Text, ForeignKey, Float, TIMESTAMP, text
 from sqlalchemy.orm import relationship
-from .database import Base
+from database import Base
 from enum import Enum as PyEnum
 from sqlalchemy import Enum
 
@@ -23,6 +23,8 @@ class User(Base):
     id = Column(String, primary_key=True, nullable=False)
     name = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
+    google_id = Column(String, unique=True, nullable=True)  # Google's user ID
+    avatar_url = Column(String, nullable=True)  # Profile picture from Google
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
