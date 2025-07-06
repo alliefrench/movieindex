@@ -20,6 +20,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -46,7 +47,7 @@ async def google_login():
     if not GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
     
-    callback_url = f"{FRONTEND_URL.replace('5173', '8000')}/auth/google/callback"
+    callback_url = f"{API_URL}/auth/google/callback"
     google_auth_url = (
         f"{GOOGLE_OAUTH_URL}?"
         f"client_id={GOOGLE_CLIENT_ID}&"
@@ -64,7 +65,7 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=400, detail="No authorization code received")
 
     # Exchange code for token
-    callback_url = f"{FRONTEND_URL.replace('5173', '8000')}/auth/google/callback"
+    callback_url = f"{API_URL}/auth/google/callback"
     token_data = {
         "client_id": GOOGLE_CLIENT_ID,
         "client_secret": GOOGLE_CLIENT_SECRET,
