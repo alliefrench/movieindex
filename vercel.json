@@ -2,10 +2,10 @@
     "version": 2,
     "builds": [
         {
-            "src": "app/package.json",
+            "src": "package.json",
             "use": "@vercel/static-build",
             "config": {
-                "distDir": "dist"
+                "distDir": "app/dist"
             }
         },
         {
@@ -22,6 +22,5 @@
             "src": "/(.*)",
             "dest": "app/dist/$1"
         }
-    ],
-    "outputDirectory": "app/dist"
+    ]
 }
