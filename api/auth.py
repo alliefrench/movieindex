@@ -8,11 +8,13 @@ from sqlalchemy import select
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+
+# Import with absolute paths (working directory is project root for both local and Vercel)
 from api.database import get_db
 from api.models import User
 
-# Load environment variables from root level .env file
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+# Load environment variables (working directory is project root)
+load_dotenv('.env')
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

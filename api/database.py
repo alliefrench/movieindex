@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from dotenv import load_dotenv
 import ssl
 
-# Load environment variables from root level .env file
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+# Load environment variables (working directory is project root)
+load_dotenv('.env')
 
 # Database configuration
 DATABASE_URL = os.getenv("DATABASE_URL")

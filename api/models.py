@@ -1,5 +1,7 @@
 from sqlalchemy import Column, String, Integer, Text, ForeignKey, Float, TIMESTAMP, text
 from sqlalchemy.orm import relationship
+
+# Import with absolute paths (working directory is project root for both local and Vercel)
 from api.database import Base
 from enum import Enum as PyEnum
 from sqlalchemy import Enum
