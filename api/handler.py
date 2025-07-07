@@ -16,8 +16,8 @@ try:
     # First try absolute import (for Vercel)
     from api.main import app
 except ImportError:
-    # Fallback to relative import (for local development)
-    from main import app
+    # Fallback to relative import (both files are in api directory)
+    from .main import app
 
 # Import mangum only when needed
 try:

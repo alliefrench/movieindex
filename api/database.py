@@ -25,6 +25,15 @@ if "sslmode=" in DATABASE_URL:
 else:
     cleaned_url = DATABASE_URL
 
+# Ensure the URL uses asyncpg driver
+if cleaned_url.startswith("postgresql://"):
+    cleaned_url = cleaned_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+elif not cleaned_url.startswith("postgresql+asyncpg://"):
+    # If it doesn't start with postgresql://, add the asyncpg driver
+    if "://" in cleaned_url:
+        parts = cleaned_url.split("://", 1)
+        cleaned_url = f"postgresql+asyncpg://{parts[1]}"
+
 # Create SSL context for asyncpg
 ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False
