@@ -2,6 +2,13 @@
     "version": 2,
     "builds": [
         {
+            "src": "app/package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "dist"
+            }
+        },
+        {
             "src": "api/main.py",
             "use": "@vercel/python"
         }
@@ -9,7 +16,11 @@
     "routes": [
         {
             "src": "/api/(.*)",
-            "dest": "/api/main.py"
+            "dest": "api/main.py"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "app/dist/$1"
         }
     ]
 }
