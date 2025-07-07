@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db
 from auth import router as auth_router
-from mangum import Mangum
 
 app = FastAPI()
 
@@ -42,6 +41,3 @@ async def test_db_connection(db: AsyncSession = Depends(get_db)):
         return {"message": "Database connection ready for async operations!"}
     except Exception as e:
         return {"error": "Database connection failed", "details": str(e), "message": "Please set DATABASE_URL environment variable"}
-
-# Mangum handler for Vercel serverless functions
-handler = Mangum(app)
