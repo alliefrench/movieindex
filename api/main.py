@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
+
+# Import with absolute paths (working directory is project root for both local and Vercel)
 from api.database import get_db
 from api.auth import router as auth_router
 
