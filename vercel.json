@@ -9,7 +9,7 @@
             }
         },
         {
-            "src": "api/handler.py",
+            "src": "api/main.py",
             "use": "@vercel/python",
             "config": {
                 "runtime": "python3.9"
@@ -19,7 +19,7 @@
     "routes": [
         {
             "src": "/api/(.*)",
-            "dest": "/api/handler.py"
+            "dest": "/api/main.py"
         },
         {
             "src": "/(.*)",
