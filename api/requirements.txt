@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-sqlalchemy
-asyncpg
-python-jose[cryptography]
-python-dotenv
-greenlet
-authlib
-requests

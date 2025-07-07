@@ -5,7 +5,6 @@ This handles the import differences between local and serverless environments.
 
 import sys
 import os
-from mangum import Mangum
 
 # Add the project root to the Python path for absolute imports
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,5 +19,11 @@ except ImportError:
     # Fallback to relative import (for local development)
     from main import app
 
-# Mangum handler for Vercel serverless functions
-handler = Mangum(app) 
+# Import mangum only when needed
+try:
+    from mangum import Mangum
+    # Mangum handler for Vercel serverless functions
+    handler = Mangum(app)
+except ImportError:
+    # If mangum is not available, just use the app directly
+    handler = app 
