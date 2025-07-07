@@ -200,4 +200,5 @@ cython_debug/
 /.vscode
 
 .env
+.env.*
 /app/src/vite-env.d.ts

@@ -9,7 +9,12 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],  # Vite dev server ports
+    allow_origins=[
+        "http://localhost:3000", 
+        "http://localhost:5173",  # Vite dev server ports
+        "https://www.themovieindex.club",  # Production domain (frontend)
+        "https://api.themovieindex.club",  # If using API subdomain
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,3 +41,6 @@ async def test_db_connection(db: AsyncSession = Depends(get_db)):
         return {"message": "Database connection ready for async operations!"}
     except Exception as e:
         return {"error": "Database connection failed", "details": str(e), "message": "Please set DATABASE_URL environment variable"}
+
+# Handler for Vercel serverless functions
+handler = app
