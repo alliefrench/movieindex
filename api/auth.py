@@ -8,8 +8,8 @@ from sqlalchemy import select
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from database import get_db
-from models import User
+from api.database import get_db
+from api.models import User
 
 # Load environment variables from root level .env file
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
