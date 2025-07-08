@@ -16,12 +16,10 @@
         {
             "source": "/api/(.*)",
             "destination": "/api/main.py"
-        }
-    ],
-    "routes": [
+        },
         {
-            "src": "/(.*)",
-            "dest": "app/dist/$1"
+            "source": "(.*)",
+            "destination": "app/dist/$1"
         }
     ]
 }
