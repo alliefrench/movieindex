@@ -16,7 +16,7 @@ from api.models import User
 # Load environment variables (working directory is project root)
 load_dotenv('.env')
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 # Configuration from environment variables
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
