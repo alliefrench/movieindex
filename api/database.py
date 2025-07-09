@@ -1,4 +1,5 @@
 import os
+import logging
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -67,4 +68,5 @@ async def get_db():
         try:
             yield session
         finally:
-            await session.close() 
+            await session.close()
+            logging.warning("Database session closed") 
