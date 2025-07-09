@@ -1,6 +1,6 @@
 import uuid
 import requests
-import settings
+import api.settings as settings
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
