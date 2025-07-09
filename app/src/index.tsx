@@ -48,6 +48,7 @@ function App(): JSX.Element {
 
   const fetchScaryData = async () => {
     try {
+      console.log("Fetching data from", `${API_URL}/scary`);
       const response = await fetch(`${API_URL}/scary`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
