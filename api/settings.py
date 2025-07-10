@@ -1,5 +1,9 @@
 import os
+from dotenv import load_dotenv
 
+# Load .env from project root
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(project_root, '.env'))
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 APP_ENV = os.getenv("APP_ENV", "development")

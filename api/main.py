@@ -1,3 +1,5 @@
+from api.db_models import PermissionType
+from api.manager import require_permission, initialize_default_permissions
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,6 +25,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# @app.on_event("startup")
+# async def startup_event():
+#     """Initialize permissions on app startup"""
+#     await initialize_default_permissions()
+#     logging.info("Default permissions initialized")
 
 # Include auth router
 app.include_router(auth_router)
@@ -31,21 +38,16 @@ logging.warning("***", str(app.routes))
 
 @app.get("/api")
 def read_root():
+    get_db()
     return {"message": "Welcome to movieindex API"}
 
 @app.get("/api/scary")
 def get_scary():
     return {"message": "🎃 BOO! This is a scary response from the server! 👻", "scary_level": "moderate"}
 
-# Example async route using the database
-@app.get("/api/db-test")
-async def test_db_connection(db: AsyncSession = Depends(get_db)):
-    logging.warning("Database connection test started")
-    try:
-        # Example of how to use async database operations
-        # result = await db.execute(select(SomeModel))
-        # return result.scalars().all()
-        return {"message": "Database connection ready for async operations!"}
-    except Exception as e:
-        logging.warning("Database connection failed", exc_info=True)
-        return {"error": "Database connection failed", "details": str(e), "message": "Please set DATABASE_URL environment variable"}
+@app.get("/api/movies")
+@require_permission(PermissionType.ADD_MOVIES)
+async def create_movie_endpoint(user_id: str, movie_data: dict):
+    """Create a new movie - requires ADD_MOVIES permission"""
+    # Movie creation logic here
+    return {"message": "Movie created successfully"}

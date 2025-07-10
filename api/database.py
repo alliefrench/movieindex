@@ -1,12 +1,13 @@
+import os
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker, declarative_base
 import api.settings as settings
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from dotenv import load_dotenv
+from contextlib import asynccontextmanager
 import ssl
 
-# Load environment variables (working directory is project root)
-load_dotenv('.env')
 database_url = settings.DATABASE_URL
 syncpg_prefix = "postgresql://"
 asyncpg_prefix = "postgresql+asyncpg://"
