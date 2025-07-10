@@ -42,8 +42,8 @@ class User(Base):
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
     
-    # Relationship to permissions
-    permissions = relationship("UserPermission", back_populates="user")
+    # Relationship to permissions - TEMPORARILY COMMENTED OUT
+    # permissions = relationship("UserPermission", back_populates="user")
 
 class Permission(Base):
     __tablename__ = "permissions"
