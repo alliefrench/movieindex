@@ -1,3 +1,4 @@
+import os
 import uuid
 import requests
 import api.settings as settings
@@ -7,14 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
 
 
 from api.database import get_db
 from api.db_models import User
-
-
-load_dotenv('.env')
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
