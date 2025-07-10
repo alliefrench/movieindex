@@ -1,6 +1,6 @@
-import os
 import uuid
 import requests
+import api.settings as settings
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,28 +9,26 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
-# Import with absolute paths (working directory is project root for both local and Vercel)
-from api.database import get_db
-from api.models import User
 
-# Load environment variables (working directory is project root)
+from api.database import get_db
+from api.db_models import User
+
+
 load_dotenv('.env')
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-# Configuration from environment variables
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
-API_URL = os.getenv("API_URL", "http://localhost:8000")
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# Google OAuth URLs
-GOOGLE_OAUTH_URL = "https://accounts.google.com/o/oauth2/auth"
-GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
-GOOGLE_USER_INFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
+google_client_id = settings.GOOGLE_CLIENT_ID
+google_client_secret = settings.GOOGLE_CLIENT_SECRET
+google_oauth_url = settings.GOOGLE_OAUTH_URL
+google_token_url = settings.GOOGLE_TOKEN_URL
+google_user_info_url = settings.GOOGLE_USER_INFO_URL
+frontend_url = settings.FRONTEND_URL
+api_url = settings.API_URL
+secret_key = settings.SECRET_KEY
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     """Create JWT access token"""
@@ -40,19 +38,19 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=ALGORITHM)
     return encoded_jwt
 
 @router.get("/google")
 async def google_login():
     """Redirect to Google OAuth"""
-    if not GOOGLE_CLIENT_ID:
+    if not google_client_id:
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
     
-    callback_url = f"{API_URL}/auth/google/callback"
+    callback_url = f"{api_url}/auth/google/callback"
     google_auth_url = (
-        f"{GOOGLE_OAUTH_URL}?"
-        f"client_id={GOOGLE_CLIENT_ID}&"
+        f"{google_oauth_url}?"
+        f"client_id={google_client_id}&"
         f"redirect_uri={callback_url}&"
         f"scope=openid email profile&"
         f"response_type=code&"
@@ -67,17 +65,17 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=400, detail="No authorization code received")
 
     # Exchange code for token
-    callback_url = f"{API_URL}/auth/google/callback"
+    callback_url = f"{api_url}/auth/google/callback"
     token_data = {
-        "client_id": GOOGLE_CLIENT_ID,
-        "client_secret": GOOGLE_CLIENT_SECRET,
+        "client_id": google_client_id,
+        "client_secret": google_client_secret,
         "code": code,
         "grant_type": "authorization_code",
         "redirect_uri": callback_url,
     }
 
     # Get access token from Google
-    token_response = requests.post(GOOGLE_TOKEN_URL, data=token_data)
+    token_response = requests.post(google_token_url, data=token_data)
     token_json = token_response.json()
 
     if "access_token" not in token_json:
@@ -85,7 +83,7 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
 
     # Get user info from Google
     headers = {"Authorization": f"Bearer {token_json['access_token']}"}
-    user_response = requests.get(GOOGLE_USER_INFO_URL, headers=headers)
+    user_response = requests.get(google_user_info_url, headers=headers)
     user_data = user_response.json()
 
     # Check if user exists or create new user
@@ -126,14 +124,14 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
     )
 
     # Redirect to frontend with token
-    redirect_url = f"{FRONTEND_URL}?token={access_token}"
+    redirect_url = f"{frontend_url}?token={access_token}"
     return RedirectResponse(url=redirect_url)
 
 @router.get("/me")
 async def get_current_user(token: str, db: AsyncSession = Depends(get_db)):
     """Get current user info"""
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise HTTPException(status_code=401, detail="Invalid token")

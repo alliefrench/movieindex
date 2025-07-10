@@ -1,6 +1,4 @@
-import os
-import logging
-from sqlalchemy import create_engine
+import api.settings as settings
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -9,31 +7,34 @@ import ssl
 
 # Load environment variables (working directory is project root)
 load_dotenv('.env')
+database_url = settings.DATABASE_URL
+syncpg_prefix = "postgresql://"
+asyncpg_prefix = "postgresql+asyncpg://"
+ssl_prefix = "sslmode="
+split_chars = "://"
 
-# Database configuration
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-if not DATABASE_URL:
+if not database_url:
     raise ValueError("DATABASE_URL environment variable is not set")
 
-# Parse and clean the DATABASE_URL for asyncpg
-# Remove sslmode and channel_binding parameters as they're not supported by asyncpg
-if "sslmode=" in DATABASE_URL:
-    # Split the URL to remove unsupported parameters
-    base_url = DATABASE_URL.split('?')[0]
-    # For Neon, we need SSL but asyncpg handles it differently
-    cleaned_url = base_url
-else:
-    cleaned_url = DATABASE_URL
+def clean_database_url_for_asyncpg(database_url):
+    cleaned_url = database_url
+    if ssl_prefix in cleaned_url:
+        # Split the URL to remove unsupported parameters. For Neon, we need SSL but asyncpg handles it differently
+        base_url = database_url.split('?')[0]
+        cleaned_url = base_url
 
-# Ensure the URL uses asyncpg driver
-if cleaned_url.startswith("postgresql://"):
-    cleaned_url = cleaned_url.replace("postgresql://", "postgresql+asyncpg://", 1)
-elif not cleaned_url.startswith("postgresql+asyncpg://"):
-    # If it doesn't start with postgresql://, add the asyncpg driver
-    if "://" in cleaned_url:
-        parts = cleaned_url.split("://", 1)
-        cleaned_url = f"postgresql+asyncpg://{parts[1]}"
+    if cleaned_url.startswith(asyncpg_prefix):
+        return cleaned_url
+
+    # Ensure the URL uses asyncpg driver
+    if cleaned_url.startswith(syncpg_prefix):
+        return cleaned_url.replace(syncpg_prefix, asyncpg_prefix, 1)
+
+    if split_chars in cleaned_url:
+        parts = cleaned_url.split(split_chars, 1)
+        cleaned_url = f"{asyncpg_prefix}{parts[1]}"
+        
+    return cleaned_url
 
 # Create SSL context for asyncpg
 ssl_context = ssl.create_default_context()
@@ -42,7 +43,7 @@ ssl_context.verify_mode = ssl.CERT_NONE
 
 # Create async engine with SSL context
 engine = create_async_engine(
-    cleaned_url,
+    clean_database_url_for_asyncpg(database_url),
     echo=True,
     connect_args={
         "ssl": ssl_context,
@@ -69,4 +70,3 @@ async def get_db():
             yield session
         finally:
             await session.close()
-            logging.warning("Database session closed") 
