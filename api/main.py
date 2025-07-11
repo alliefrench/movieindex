@@ -1,4 +1,3 @@
-from api.db_models import PermissionType
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -37,7 +36,6 @@ logging.warning("***", str(app.routes))
 
 @app.get("/api")
 def read_root():
-    get_db()
     return {"message": "Welcome to movieindex API"}
 
 @app.get("/api/scary")
