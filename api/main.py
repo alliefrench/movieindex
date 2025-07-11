@@ -1,11 +1,13 @@
-from fastapi import FastAPI, Depends
+import logging
+
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
-import logging
+
+from api.auth import router as auth_router
 
 # Import with absolute paths (working directory is project root for both local and Vercel)
 from api.database import get_db
-from api.auth import router as auth_router
 
 app = FastAPI()
 
@@ -13,7 +15,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000", 
+        "http://localhost:3000",
         "http://localhost:5173",  # Vite dev server ports
         "https://www.themovieindex.club",  # Production domain (frontend)
         "https://api.themovieindex.club",  # If using API subdomain
@@ -34,13 +36,19 @@ app.include_router(auth_router)
 logging.warning("Auth router included")
 logging.warning("***", str(app.routes))
 
+
 @app.get("/api")
 def read_root():
     return {"message": "Welcome to movieindex API"}
 
+
 @app.get("/api/scary")
 def get_scary():
-    return {"message": "🎃 BOO! This is a scary response from the server! 👻", "scary_level": "moderate"}
+    return {
+        "message": "🎃 BOO! This is a scary response from the server! 👻",
+        "scary_level": "moderate",
+    }
+
 
 # @app.get("/api/movies")
 # @require_permission(PermissionType.ADD_MOVIES)
