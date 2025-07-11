@@ -1,5 +1,4 @@
 from api.db_models import PermissionType
-from api.manager import require_permission, initialize_default_permissions
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -45,9 +44,9 @@ def read_root():
 def get_scary():
     return {"message": "🎃 BOO! This is a scary response from the server! 👻", "scary_level": "moderate"}
 
-@app.get("/api/movies")
-@require_permission(PermissionType.ADD_MOVIES)
-async def create_movie_endpoint(user_id: str, movie_data: dict):
-    """Create a new movie - requires ADD_MOVIES permission"""
-    # Movie creation logic here
-    return {"message": "Movie created successfully"}
+# @app.get("/api/movies")
+# @require_permission(PermissionType.ADD_MOVIES)
+# async def create_movie_endpoint(user_id: str, movie_data: dict):
+#     """Create a new movie - requires ADD_MOVIES permission"""
+#     # Movie creation logic here
+#     return {"message": "Movie created successfully"}
