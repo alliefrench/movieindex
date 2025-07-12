@@ -2,6 +2,7 @@ import logging
 import os
 import uuid
 from datetime import datetime, timedelta
+from typing import Any, Optional
 
 import requests
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -11,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import api.settings as settings
+from api import route_constants
 from api.database import get_db
 from api.db_models import User
 
@@ -29,7 +31,7 @@ api_url = settings.API_URL
 secret_key = settings.SECRET_KEY
 
 
-def create_access_token(data: dict, expires_delta: timedelta = None):
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> Any:
     """Create JWT access token"""
     to_encode = data.copy()
     if expires_delta:
@@ -41,8 +43,8 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 
-@router.get("/google")
-async def google_login():
+@router.get(route_constants.GOOGLE_AUTH_ROOT)
+async def google_login() -> RedirectResponse:
     """Redirect to Google OAuth"""
     if not google_client_id:
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
@@ -59,8 +61,10 @@ async def google_login():
     return RedirectResponse(url=google_auth_url)
 
 
-@router.get("/google/callback")
-async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
+@router.get(route_constants.GOOGLE_AUTH_CALLBACK_ROOT)
+async def google_callback(
+    code: str, db: AsyncSession = Depends(get_db)
+) -> RedirectResponse:
     """Handle Google OAuth callback"""
     if not code:
         raise HTTPException(status_code=400, detail="No authorization code received")
@@ -148,8 +152,8 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"OAuth callback failed: {str(e)}")
 
 
-@router.get("/me")
-async def get_current_user(token: str, db: AsyncSession = Depends(get_db)):
+@router.get(route_constants.GOOGLE_AUTH_ME_ROOT)
+async def get_current_user(token: str, db: AsyncSession = Depends(get_db)) -> dict:
     """Get current user info"""
     try:
         payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
@@ -202,8 +206,8 @@ async def get_current_user(token: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@router.get("/debug/db")
-async def debug_database(db: AsyncSession = Depends(get_db)):
+@router.get(route_constants.GOOGLE_AUTH_DEBUG_DB_ROOT)
+async def debug_database(db: AsyncSession = Depends(get_db)) -> dict:
     """Debug endpoint to test database connectivity"""
     try:
         # Test basic database connection
